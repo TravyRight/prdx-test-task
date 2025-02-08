@@ -1,0 +1,15 @@
+syntax = "proto3";
+package messages;
+
+message SendMessageRequest {
+    int64 channel_id = 1;
+    string message = 2;
+}
+
+message SendMessageResponse {
+     string result = 1;
+}
+
+service SendMessageService {
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse) {}
+}
