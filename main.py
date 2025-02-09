@@ -1,6 +1,9 @@
 import logging
 
+from nats.errors import BadSubjectError
+
 from config import TOKEN, bot
+from nats_server.handlers import nats_message_handler, connect_to_nats_handler
 
 
 def main():
@@ -13,12 +16,22 @@ def main():
 
     logging.info("Load cogs")
     bot.load_extension("cogs.commands")
+    # bot.load_extension("cogs.tasks")
 
     @bot.event
     async def on_ready():
-        on_ready_message = "Bot is ready"
-        logging.info(on_ready_message)
-        print(on_ready_message)
+        log_message = "Bot is ready"
+        logging.info(log_message)
+        print(log_message)
+
+        # connect and subscribe to NATS
+        nc = await connect_to_nats_handler()
+        await nc.subscribe("broadcast.*", cb=nats_message_handler)
+
+
+    @bot.event
+    async def on_disconnect():
+        await nc.close()
 
     bot.run(TOKEN)
 

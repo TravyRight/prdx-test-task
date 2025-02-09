@@ -1,7 +1,8 @@
 import disnake
 from disnake.ext import commands
 
-from config import bot
+from config import bot, nats_discord_channel_id
+from nats_server.handlers import connect_to_nats_handler
 
 
 class BotCommands(commands.Cog):
@@ -22,6 +23,23 @@ class BotCommands(commands.Cog):
         await bot.change_presence(activity=activity)
 
         await inter.send(content=f"Активность установлена!", ephemeral=True)
+
+    @commands.slash_command(name="broadcast", description="Публикует указанное сообщение в NATS")
+    async def broadcast(
+            self,
+            inter: disnake.ApplicationCommandInteraction,
+            message: str = commands.Param(name="message")
+    ):
+        await inter.response.defer(ephemeral=True)
+        nc = await connect_to_nats_handler()
+        await nc.publish(f"broadcast.{nats_discord_channel_id}", bytes(message, encoding="utf8"))
+
+        embed = disnake.Embed(
+            description=f"**Сообщение было опубликованно в NATS** ```{message}```",
+            color=disnake.Color.dark_embed()
+        )
+
+        await inter.send(embed=embed, ephemeral=True)
 
 
 def setup(bot: commands.Bot):
