@@ -9,6 +9,13 @@ class BotCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    async def cog_slash_command_check(self, inter: disnake.ApplicationCommandInteraction):
+        if inter.application_command.name != "register":
+            await inter.send(content="Вы не зарегистрированы! Используйте `/register`")
+            return
+
+        # check if inter.user in db or not
+
     @commands.slash_command(name="ping", description="Отвечает «Pong!» и выводит задержку бота")
     async def ping(self, inter: disnake.ApplicationCommandInteraction):
         await inter.send(content=f"Pong! `{round(bot.latency * 1000)}ms`")
@@ -40,6 +47,29 @@ class BotCommands(commands.Cog):
         )
 
         await inter.send(embed=embed, ephemeral=True)
+
+    @commands.slash_command(name="register", description="Регистрация пользователя")
+    async def register(self, inter: disnake.ApplicationCommandInteraction):
+        await inter.response.defer(ephemeral=True)
+
+        # Добавление inter.user в бд
+
+        await inter.send(content="Вы были **успешно** зарегистрированы", ephemeral=True)
+
+    @commands.slash_command(name="user_info", description="Информация о пользователе")
+    async def user_info(
+            self,
+            inter: disnake.ApplicationCommandInteraction,
+            user: disnake.Member = commands.Param(name="message", default=None)
+    ):
+        await inter.response.defer(ephemeral=True)
+
+        if user is None:
+            user = inter.user
+
+        # Достаем инфу об inter.user из бд
+
+        await inter.send(content="В разработке...", ephemeral=True)
 
 
 def setup(bot: commands.Bot):

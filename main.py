@@ -9,16 +9,20 @@ from nats_server.handlers import nats_message_handler, connect_to_nats_handler
 
 
 def main():
-    logging.info("Start bot")
+    try:
+        logging.info("Start bot")
 
-    """
-    logging.info("Create db")
-    create_db()
-    """
+        """
+        logging.info("Create db")
+        create_db()
+        """
 
-    logging.info("Load cogs")
-    bot.load_extension("cogs.commands")
-    # bot.load_extension("cogs.tasks")
+        logging.info("Load cogs")
+        bot.load_extension("cogs.commands")
+
+    except Exception as e:
+        logging.error(f"Failed to start bot. Error: {str(e)}")
+        print(e)
 
     @bot.event
     async def on_ready():
