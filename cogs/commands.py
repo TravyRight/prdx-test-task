@@ -9,12 +9,16 @@ class BotCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # Без бд эта часть кода не нужна
+    """
     async def cog_slash_command_check(self, inter: disnake.ApplicationCommandInteraction):
+        pass
+
+        
         if inter.application_command.name != "register":
             await inter.send(content="Вы не зарегистрированы! Используйте `/register`")
             return
-
-        # check if inter.user in db or not
+    """
 
     @commands.slash_command(name="ping", description="Отвечает «Pong!» и выводит задержку бота")
     async def ping(self, inter: disnake.ApplicationCommandInteraction):
@@ -52,7 +56,7 @@ class BotCommands(commands.Cog):
     async def register(self, inter: disnake.ApplicationCommandInteraction):
         await inter.response.defer(ephemeral=True)
 
-        # Добавление inter.user в бд
+        # add inter.user to db
 
         await inter.send(content="Вы были **успешно** зарегистрированы", ephemeral=True)
 
@@ -67,7 +71,7 @@ class BotCommands(commands.Cog):
         if user is None:
             user = inter.user
 
-        # Достаем инфу об inter.user из бд
+        # select * from bot_users where discord_id=inter.user
 
         await inter.send(content="В разработке...", ephemeral=True)
 
