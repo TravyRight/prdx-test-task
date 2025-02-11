@@ -22,13 +22,13 @@ async def connect_to_nats_handler(max_retries=5, retry_delay=2):
     while attempts < max_retries:
         try:
             await nc.connect(servers=["nats://localhost:4222"])
-            logging.info("Успешное поделючение к NATS!")
+            logging.info("Successful connection to NATS!")
             return nc
 
         except (ErrTimeout, ErrNoServers) as e:
             attempts += 1
-            logging.error(f"Ошибка подключения к NATS: {e}. Повторная попытка через {retry_delay} секунды...")
+            logging.error(f"Error connecting to NATS: {e}. Retry after {retry_delay} seconds...")
             await asyncio.sleep(retry_delay)
 
-    logging.critical("Не удалось подключиться к NATS.")
+    logging.critical("Can not connect to NATS!")
     return None
