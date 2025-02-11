@@ -10,8 +10,6 @@ from database.models import Base
 
 
 # get token
-from database.models import Base
-
 load_dotenv(find_dotenv())
 TOKEN = os.getenv("TOKEN")
 
