@@ -25,10 +25,15 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 nats_discord_channel_id = 1338165876029132930
 
 # create and connect database
-"""
-engine = create_engine(url="postgresql:///database.db", echo=True)
+# я не стал добавлять информацию об бд в файл .env тк она локальная
+user = "postgres"
+password = "root"
+host = "localhost"
+port = 5433
+dbname = "prdx_test_task"
+
+engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{dbname}')
 Base.metadata.create_all(engine)
-"""
 
 # create log file
 logging.basicConfig(
