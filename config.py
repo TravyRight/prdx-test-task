@@ -25,20 +25,17 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 nats_discord_channel_id = 1338165876029132930
 
 # create and connect database
-# я не стал добавлять информацию об бд в файл .env тк она локальная
-user = "postgres"
-password = "root"
-host = "localhost"
-port = 5433
-dbname = "prdx_test_task"
+USER = os.getenv("POSTGRES_USER")
+PASSWORD = os.getenv("POSTGRES_PASSWORD")
+DB = os.getenv("POSTGRES_DB")
 
-engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{dbname}')
+engine = create_engine(f'postgresql://{USER}:{PASSWORD}@postgres:5432/{DB}')
 Base.metadata.create_all(engine)
 
 # create log file
 logging.basicConfig(
     level=logging.INFO,
-    filename="prdx-test-task/logs.log",
+    filename="logs.log",
     filemode="w",
     format="%(asctime)s [%(levelname)s] %(message)s"
 )

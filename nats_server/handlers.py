@@ -27,13 +27,13 @@ async def nats_message_handler(msg):
         await channel.send(content=msg.data.decode())
 
 
-async def connect_to_nats_handler(max_retries=5, retry_delay=2):
+async def connect_to_nats_handler(max_retries=3, retry_delay=2):
     nc = Client()
     attempts = 0
 
     while attempts < max_retries:
         try:
-            await nc.connect(servers=["nats://localhost:4222"])
+            await nc.connect(servers=["nats://nats_server:4222"])
             logging.info("Successful connection to NATS!")
             return nc
 
