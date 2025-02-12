@@ -71,7 +71,7 @@ class BotCommands(commands.Cog):
             new_bot_user = bot_users(
                 discord_id=inter.user.id,
                 username=inter.user.name,
-                joined_at=round(inter.user.joined_at.timestamp())
+                joined_at=inter.user.joined_at
             )
 
             session.add(new_bot_user)
@@ -118,7 +118,7 @@ class BotCommands(commands.Cog):
 
         embed.add_field(
             name="3. `joined_at`",
-            value=f"<t:{user.joined_at}:R>",
+            value=f"<t:{round(user.joined_at.timestamp())}:R>",
             inline=False
         )
 
