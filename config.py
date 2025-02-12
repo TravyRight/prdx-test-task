@@ -10,8 +10,6 @@ from database.models import Base
 
 
 # get token
-from database.models import Base
-
 load_dotenv(find_dotenv())
 TOKEN = os.getenv("TOKEN")
 
@@ -27,15 +25,17 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 nats_discord_channel_id = 1338165876029132930
 
 # create and connect database
-"""
-engine = create_engine(url="postgresql:///database.db", echo=True)
+USER = os.getenv("POSTGRES_USER")
+PASSWORD = os.getenv("POSTGRES_PASSWORD")
+DB = os.getenv("POSTGRES_DB")
+
+engine = create_engine(f'postgresql://{USER}:{PASSWORD}@postgres:5432/{DB}')
 Base.metadata.create_all(engine)
-"""
 
 # create log file
 logging.basicConfig(
     level=logging.INFO,
-    filename="prdx-test-task/logs.log",
+    filename="logs.log",
     filemode="w",
     format="%(asctime)s [%(levelname)s] %(message)s"
 )

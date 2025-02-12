@@ -1,7 +1,13 @@
+import datetime
+import time
+
 import disnake
 from disnake.ext import commands
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-from config import bot, nats_discord_channel_id
+from config import bot, nats_discord_channel_id, engine
+from database.models import bot_users
 from nats_server.handlers import connect_to_nats_handler
 
 
@@ -9,16 +15,15 @@ class BotCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # Без бд эта часть кода не нужна
-    """
     async def cog_slash_command_check(self, inter: disnake.ApplicationCommandInteraction):
-        pass
+        with Session(engine) as session:
+            query = session.query(bot_users).filter(bot_users.discord_id == inter.user.id).first()
 
-        
-        if inter.application_command.name != "register":
-            await inter.send(content="Вы не зарегистрированы! Используйте `/register`")
-            return
-    """
+            if query is None and inter.application_command.name != "register":
+                await inter.send(content="Вы не зарегистрированы! Используйте `/register`")
+                return False
+
+        return True
 
     @commands.slash_command(name="ping", description="Отвечает «Pong!» и выводит задержку бота")
     async def ping(self, inter: disnake.ApplicationCommandInteraction):
@@ -56,7 +61,21 @@ class BotCommands(commands.Cog):
     async def register(self, inter: disnake.ApplicationCommandInteraction):
         await inter.response.defer(ephemeral=True)
 
-        # add inter.user to db
+        with Session(engine) as session:
+            query = session.query(bot_users).filter(bot_users.discord_id == inter.user.id).first()
+
+            if query is not None:
+                await inter.send(content="Упс... Вы уже зарегистрированы", ephemeral=True)
+                return
+
+            new_bot_user = bot_users(
+                discord_id=inter.user.id,
+                username=inter.user.name,
+                joined_at=inter.user.joined_at
+            )
+
+            session.add(new_bot_user)
+            session.commit()
 
         await inter.send(content="Вы были **успешно** зарегистрированы", ephemeral=True)
 
@@ -64,16 +83,46 @@ class BotCommands(commands.Cog):
     async def user_info(
             self,
             inter: disnake.ApplicationCommandInteraction,
-            user: disnake.Member = commands.Param(name="message", default=None)
+            user: disnake.Member = commands.Param(name="user", default=None)
     ):
         await inter.response.defer(ephemeral=True)
 
         if user is None:
             user = inter.user
 
-        # select * from bot_users where discord_id=inter.user
+        with Session(engine) as session:
+            data = select(bot_users).where(bot_users.discord_id == user.id)
 
-        await inter.send(content="В разработке...", ephemeral=True)
+            try:
+                user = session.scalars(data).one()
+            except:
+                await inter.send(content="Упс... Пользователя нет в базе", ephemeral=True)
+                return
+
+        embed = disnake.Embed(
+            title="Информация",
+            color=disnake.Color.dark_embed()
+        )
+
+        embed.add_field(
+            name="1. `discord_id`",
+            value=str(user.discord_id),
+            inline=False
+        )
+
+        embed.add_field(
+            name="2. `username`",
+            value=user.username,
+            inline=False
+        )
+
+        embed.add_field(
+            name="3. `joined_at`",
+            value=f"<t:{round(user.joined_at.timestamp())}:R>",
+            inline=False
+        )
+
+        await inter.send(embed=embed, ephemeral=True)
 
 
 def setup(bot: commands.Bot):

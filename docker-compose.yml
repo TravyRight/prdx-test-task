@@ -1,0 +1,28 @@
+services:
+  discord_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      TOKEN: "MTMzNzQyNzMzNzc2NzAyNjcyOQ.GeoYvH.Pz3ZGkk8gO6iuShghhJbCRE8xy7xxq3t0L-rxI"
+    depends_on:
+      - postgres
+      - nats_server
+
+  nats_server:
+    image: "nats:alpine"
+    expose:
+      - "4222"
+    ports:
+      - "8222:8222"
+
+  postgres:
+    image: "postgres:17"
+    ports:
+      - "5433:5433"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "root"
+      POSTGRES_DB: "prdx_test_task"
+    volumes:
+      - "./postgres-data:/var/lib/postgresql/data"
