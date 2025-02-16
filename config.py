@@ -22,7 +22,7 @@ intents.guilds = True
 bot = commands.Bot(command_prefix=".", intents=intents)
 
 # NATS
-nats_discord_channel_id = 1338165876029132930
+nats_discord_channel_id = int(os.getenv("DISCORD_NATS_CHANNEL_ID"))
 
 # create and connect database
 USER = os.getenv("POSTGRES_USER")
@@ -31,6 +31,8 @@ DB = os.getenv("POSTGRES_DB")
 
 engine = create_engine(f'postgresql://{USER}:{PASSWORD}@postgres:5432/{DB}')
 Base.metadata.create_all(engine)
+#local - localhost:5433
+#docker - postgres:5432
 
 # create log file
 logging.basicConfig(
